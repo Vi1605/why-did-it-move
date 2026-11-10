@@ -13,10 +13,12 @@ def contribution_analysis(df, dim, base_month, cur_month, metric="renewed"):
         g["w"] = g["n"] / g["n"].sum()  # segment share
         return g
 
-    j = summarise(base).join(
-        summarise(cur), how="outer", lsuffix="_0", rsuffix="_1"
+    j = summarise(base).add_suffix("_0").join(
+        summarise(cur).add_suffix("_1"), how="outer"
     ).fillna(0)
     overall_0 = base[metric].mean()
+
+   
 
     # rate effect: the segment's own rate changed
     j["rate_effect"] = (j["r_1"] - j["r_0"]) * (j["w_0"] + j["w_1"]) / 2
