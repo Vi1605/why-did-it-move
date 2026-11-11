@@ -1,7 +1,10 @@
+import os
 import sys
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(ROOT))
+os.chdir(ROOT)  # make every relative path start at the project folder
 
 import duckdb
 import plotly.express as px
@@ -12,7 +15,7 @@ from src.rca import narrate, run_rca
 
 st.set_page_config(page_title="Why Did It Move?", layout="wide")
 
-DB = Path("data/renewals.duckdb")
+DB = ROOT / "data" / "renewals.duckdb"
 if not DB.exists():  # lets the app also work when deployed online
     from src.generate_data import main as generate
     from src.load_db import main as load
@@ -23,7 +26,7 @@ if not DB.exists():  # lets the app also work when deployed online
 @st.cache_data
 def load_data():
     con = duckdb.connect(str(DB), read_only=True)
-    monthly = con.sql(Path("sql/monthly_kpi.sql").read_text()).df()
+    monthly = con.sql((ROOT / "sql" / "monthly_kpi.sql").read_text()).df()
     detail = con.sql("SELECT * FROM renewals").df()
     con.close()
     return monthly, detail
